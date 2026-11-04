@@ -1,1 +1,1 @@
-# game-solver-template
+# Hi guys!
