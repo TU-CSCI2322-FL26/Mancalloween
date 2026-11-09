@@ -20,8 +20,8 @@ prettyPrint (turn, board@(b:bs, t:ts))
         calaL = show $ t
         pad = [' ' | char <- calaL]
         
-        bottomRow = pad ++ " |" ++ (init . init $ fst rows) ++ "| "
-        topRow = pad ++ " |" ++ (init . init $ snd rows) ++ "| "
+        bottomRow = pad ++ " |" ++ (init . init $ snd rows) ++ "| "
+        topRow = pad ++ " |" ++ (init . init $ fst rows) ++ "| "
         
         rows = prettyPrintRows (drop 1 $ snd board) (init $ fst board)
         centerRow = 
@@ -42,3 +42,17 @@ prettyPrintRows bottom@(b:bs) top@(t:ts)
             maxIntLength = max (length $ show b) (length $ show t)
             recurse = prettyPrintRows bs ts
 
+-- Returns the list containing the indices of legal moves.
+-- Does not check whether a board configuration is valid.
+-- Note that these indices correspond to the list of tiles that for a particular player's side,
+-- not to the board in general. 
+-- Examples: 
+-- legalMoves (One, ([-5000, 003 ,0, 52000, 2, 8, 7432], [34322, 0, -01, 300, 8, 123, 3])) = [1, 3, 4, 5]
+-- legalMoves (Two, ([-5000, 003 ,0, 52000, 2, 8, 7432], [34322, 0, -01, 300, 8, 123, 3])) = [3, 4, 5, 6]
+legalMoves :: Game -> [Move]
+legalMoves (One, (p1Tiles, _)) = indicesOfValid 0 (init p1Tiles)
+legalMoves (Two, (_, p2Tiles)) = map (\i -> i+1) (indicesOfValid 0 (drop 1 p2Tiles)) -- The map fixes the offset cause by dropping the first element
+
+indicesOfValid :: Int -> [Int] -> [Int]
+indicesOfValid index [] = []
+indicesOfValid index (x:xs) = if x > 0 then index:(indicesOfValid (index+1) xs) else (indicesOfValid (index+1) xs)
