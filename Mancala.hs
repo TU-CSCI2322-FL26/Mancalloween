@@ -107,7 +107,10 @@ makeMove (player, board) move =
         -- capture
         finalBoard = capture player lastPos newBoard
         -- next moveman
-        nextPlayer = otherPlayer player
+        nextPlayer =
+            if lastPos == (player, storeIndex player)
+            then player
+            else otherPlayer player
     in (nextPlayer, finalBoard)
 
 -- Prints a game
@@ -159,4 +162,3 @@ legalMoves (Two, (_, p2Tiles)) = map (\i -> i+1) (indicesOfValid 0 (drop 1 p2Til
 indicesOfValid :: Int -> [Int] -> [Int]
 indicesOfValid index [] = []
 indicesOfValid index (x:xs) = if x > 0 then index:(indicesOfValid (index+1) xs) else (indicesOfValid (index+1) xs)
-
