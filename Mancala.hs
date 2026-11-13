@@ -8,12 +8,107 @@ data Player = One | Two deriving (Show, Eq)
 type Tile = Int -- # of marbles in tile
 type Move = Int -- index of Man moved on
 
+type Position = (Player, Int)
+
 checkWinner :: Game -> Maybe Player
 checkWinner (_, (p1, p2)) = 
     let score1 = sum p1
         score2 = sum p2
     in  if(score1 == score2) then Nothing
         else if(score1>score2) then Just One else Just Two
+
+-- Update tile at index
+updateTile :: [Tile] -> Int -> Int -> [Tile]
+updateTile [] _ _ = []
+updateTile (x:xs) 0 value = value : xs
+updateTile (x:xs) index value =
+    x : updateTile xs (index - 1) value
+
+-- Get num marbles at position
+getTile :: Position -> Board -> Int
+getTile (One, i) (p1, p2) = p1 !! i
+getTile (Two, i) (p1, p2) = p2 !! i
+
+-- Change num marbles at position
+setTile :: Position -> Int -> Board -> Board
+setTile (One, i) value (p1, p2) =
+    (updateTile p1 i value, p2)
+setTile (Two, i) value (p1, p2) =
+    (p1, updateTile p2 i value)
+
+otherPlayer :: Player -> Player
+otherPlayer One = Two
+otherPlayer Two = One
+
+-- calas for each player
+storeIndex :: Player -> Int
+storeIndex One = 6
+storeIndex Two = 0
+
+-- Find the next position on board
+nextPosition :: Position -> Position
+nextPosition (One, 6) = (Two, 6)
+nextPosition (One, i) = (One, i + 1)
+nextPosition (Two, 0) = (One, 0)
+nextPosition (Two, i) = (Two, i - 1)
+
+-- Skip the opponent Cala and keep going
+advance :: Player -> Position -> Position
+advance player pos =
+    let next = nextPosition pos
+    in if next == (otherPlayer player,
+                   storeIndex (otherPlayer player))
+       then nextPosition next
+       else next
+
+-- mmm marbel
+addMarble :: Position -> Board -> Board
+addMarble pos board =
+    setTile pos (getTile pos board + 1) board
+
+-- recurse marbles
+sow :: Player -> Position -> Int -> Board -> (Board, Position)
+sow player pos 0 board = (board, pos)
+sow player pos marbles board =
+    let next = advance player pos
+        newBoard = addMarble next board
+    in sow player next (marbles - 1) newBoard
+
+-- special move
+capture :: Player -> Position -> Board -> Board
+capture player pos@(side, i) board
+    | side /= player = board
+    | i == storeIndex player = board
+    | getTile pos board /= 1 = board
+    | getTile opposite board == 0 = board
+    | otherwise =
+        let amount = 1 + getTile opposite board
+            cleared = setTile pos 0
+                      (setTile opposite 0 board)
+            store = (player, storeIndex player)
+        in setTile store
+             (getTile store cleared + amount) cleared
+    where
+        opposite = case player of
+            One -> (Two, i + 1)
+            Two -> (One, i - 1)
+
+-- do a move wit all the things
+makeMove :: Game -> Move -> Game
+makeMove (player, board) move =
+    let start = (player, move)
+        -- pick up marbles
+        marbles = getTile start board
+        -- Eempty pit
+        emptyBoard = setTile start 0 board
+        -- move marbles
+        (newBoard, lastPos) =
+            sow player start marbles emptyBoard
+        -- capture
+        finalBoard = capture player lastPos newBoard
+        -- next moveman
+        nextPlayer = otherPlayer player
+    in (nextPlayer, finalBoard)
 
 -- Prints a game
 -- Example Usage:
@@ -64,3 +159,4 @@ legalMoves (Two, (_, p2Tiles)) = map (\i -> i+1) (indicesOfValid 0 (drop 1 p2Til
 indicesOfValid :: Int -> [Int] -> [Int]
 indicesOfValid index [] = []
 indicesOfValid index (x:xs) = if x > 0 then index:(indicesOfValid (index+1) xs) else (indicesOfValid (index+1) xs)
+
