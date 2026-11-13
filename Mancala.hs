@@ -11,6 +11,8 @@ type Move = Int -- index of Man moved on
 
 type Position = (Player, Int)
 
+checkWinner :: Game -> Maybe Player
+checkWinner (_, (p1, p2)) = 
 checkWinner :: Game -> Maybe Winner
 checkWinner (One, (p1,p2)) = if(any (/= 0) (take 6 p1)) then Nothing else Just $ evalScoresForWinner (One, (p1,p2))
 checkWinner (Two, (p1,p2)) = if(any (/= 0) (drop 1 p2)) then Nothing else Just $ evalScoresForWinner (Two, (p1,p2))
@@ -19,6 +21,8 @@ evalScoresForWinner :: Game -> Winner
 evalScoresForWinner (_, (p1, p2)) = 
     let score1 = sum p1
         score2 = sum p2
+    in  if(score1 == score2) then Nothing
+        else if(score1>score2) then Just One else Just Two
     in  if(score1 == score2) then Draw
         else if(score1>score2) then Won One else Won Two
 
@@ -130,10 +134,10 @@ prettyPrint (turn, board@(b:bs, t:ts))
         calaR = show $ last $ b:bs
         calaL = show $ t
         pad = [' ' | char <- calaL]
-        
+
         bottomRow = pad ++ " |" ++ (init . init $ snd rows) ++ "| "
         topRow = pad ++ " |" ++ (init . init $ fst rows) ++ "| "
-        
+
         rows = prettyPrintRows (drop 1 $ snd board) (init $ fst board)
         centerRow = 
             calaL ++ " |" ++ 
