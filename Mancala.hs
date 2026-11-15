@@ -129,7 +129,7 @@ makeMove (player, board) move =
 prettyPrint :: Game -> String
 prettyPrint (turn, board@(b:bs, t:ts))
     | length (b:bs) /= length (t:ts) = "Inputs are of unequal length!"
-    | otherwise = (topRow ++ "\n" ++ centerRow ++ "\n" ++ bottomRow)
+    | otherwise = ("Player " ++ show turn ++ " to move!\n" ++ topRow ++ "\n" ++ centerRow ++ "\n" ++ bottomRow)
     where
         calaR = show $ last $ b:bs
         calaL = show $ t
