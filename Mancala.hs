@@ -99,24 +99,26 @@ capture player pos@(side, i) board
             Two -> (One, i - 1)
 
 -- do a move wit all the things
-makeMove :: Game -> Move -> Game
-makeMove (player, board) move =
-    let start = (player, move)
-        -- pick up marbles
-        marbles = getTile start board
-        -- Eempty pit
-        emptyBoard = setTile start 0 board
-        -- move marbles
-        (newBoard, lastPos) =
-            sow player start marbles emptyBoard
-        -- capture
-        finalBoard = capture player lastPos newBoard
-        -- next moveman
-        nextPlayer =
-            if lastPos == (player, storeIndex player)
-            then player
-            else otherPlayer player
-    in (nextPlayer, finalBoard)
+makeMove :: Game -> Move -> Maybe Game
+makeMove (player, board) move
+    | not $ move `elem` (legalMoves (player, board)) = Nothing
+    | otherwise =
+        let start = (player, move)
+            -- pick up marbles
+            marbles = getTile start board
+            -- Eempty pit
+            emptyBoard = setTile start 0 board
+            -- move marbles
+            (newBoard, lastPos) =
+                sow player start marbles emptyBoard
+            -- capture
+            finalBoard = capture player lastPos newBoard
+            -- next moveman
+            nextPlayer =
+                if lastPos == (player, storeIndex player)
+                then player
+                else otherPlayer player
+        in Just (nextPlayer, finalBoard)
 
 -- Prints a game
 -- Example Usage:
