@@ -1,6 +1,4 @@
-
-
-
+module GameIO where
 
 -- Prints a game
 -- Example Usage:
