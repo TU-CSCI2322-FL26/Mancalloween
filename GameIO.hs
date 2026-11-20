@@ -76,7 +76,7 @@ loadGame filePath = do
 putBestMove :: Game -> IO ()
 putBestMove game = do
     let player = fst game
-    let bestMove = show $ (-1) --bestMove game
+    let bestMove = show $ bestMove game
     putStrLn ("Best move is player " ++ show player ++ " on " ++ bestMove ++ " to force a ...")
 
 --
