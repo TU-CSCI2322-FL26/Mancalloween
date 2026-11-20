@@ -1,3 +1,5 @@
+module Mancala where
+
 import Data.Maybe
 
 type Game = (Player, Board) --Player whose turn it is
