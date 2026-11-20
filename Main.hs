@@ -11,6 +11,7 @@ import Debug.Trace
 prettyPrint :: Game -> String
 prettyPrint (turn, board@(b:bs, t:ts))
     | length (b:bs) /= length (t:ts) = "Inputs are of unequal length!"
+    | length (b:bs) == 1 || length (t:ts) == 1 = "This board is only made of Calas!"
     | otherwise = ("Player " ++ show turn ++ " to move!\n" ++ topRow ++ "\n" ++ centerRow ++ "\n" ++ bottomRow)
     where
         calaR = show $ last $ b:bs
@@ -25,7 +26,7 @@ prettyPrint (turn, board@(b:bs, t:ts))
             calaL ++ " |" ++ 
             [' ' | _ <- [1..((length $ fst $ rows)-2)]] ++ 
             "| " ++ calaR
-
+prettyPrint (turn, (_, _)) = "Player " ++ show turn ++ " to move, but at least one row of the board is empty!"
 -- Takes in two lists of tiles and returns the string representations of the bottom and top rows (in that order)
 -- Ensures pretty printing works with multidigit numbers
 prettyPrintRows :: [Tile] -> [Tile] -> (String, String)
