@@ -1,4 +1,4 @@
-module Main where
+module GameIO where
 import Mancala
 import Data.List (intercalate)
 import Data.List.Split (splitOn)
