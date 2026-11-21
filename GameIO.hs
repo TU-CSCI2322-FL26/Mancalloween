@@ -1,5 +1,6 @@
 module GameIO where
 import Mancala
+import Solve
 import Data.List (intercalate)
 import Data.List.Split (splitOn)
 import Debug.Trace
@@ -76,8 +77,8 @@ loadGame filePath = do
 putBestMove :: Game -> IO ()
 putBestMove game = do
     let player = fst game
-    let bestMove = show $ bestMove game
-    putStrLn ("Best move is player " ++ show player ++ " on " ++ bestMove ++ " to force a ...")
+    let bestMoveStr = show $ bestMove game
+    putStrLn ("Best move is player " ++ show player ++ " on " ++ bestMoveStr ++ " to force a ...")
 
 --
 main :: IO ()

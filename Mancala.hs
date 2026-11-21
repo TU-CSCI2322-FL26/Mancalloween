@@ -61,34 +61,37 @@ nextPosition (Two, i) = (Two, i - 1)
 
 -- Skip the opponent Cala and keep going
 advance :: Player -> Position -> Position
-advance player pos =
-    let next = nextPosition pos
-    in if next == (otherPlayer player,
-                   storeIndex (otherPlayer player))
-       then nextPosition next
-       else next
+advance One (Two, 1) = (One, 0)
+advance Two (One, 5) = (Two, 6)
+advance _ pos = nextPosition pos
 
--- mmm marbel
+incAt :: [Tile] -> Int -> [Tile]
+incAt [] _ = []
+incAt (x:xs) 0 = (x + 1) : xs
+incAt (x:xs) index = x : incAt xs (index - 1)
+
+incTile :: Position -> Board -> Board
+incTile (One, i) (p1, p2) = (incAt p1 i, p2)
+incTile (Two, i) (p1, p2) = (p1, incAt p2 i)
+
 addMarble :: Position -> Board -> Board
-addMarble pos board =
-    setTile pos (getTile pos board + 1) board
+addMarble = incTile
 
--- recurse marbles
 sow :: Player -> Position -> Int -> Board -> (Board, Position)
-sow player pos 0 board = (board, pos)
+sow _ pos 0 board = (board, pos)
 sow player pos marbles board =
     let next = advance player pos
-        newBoard = addMarble next board
+        newBoard = incTile next board
     in sow player next (marbles - 1) newBoard
 
 -- special move
-capture :: Player -> Position -> Board -> Board
-capture player pos@(side, i) board
-    | side /= player = board
-    | i == storeIndex player = board
-    | getTile pos board /= 1 = board
-    | getTile opposite board == 0 = board
-    | otherwise =
+capture :: Player -> Position -> Board -> Board 
+capture player pos@(side, i) board 
+     | (side /= player)
+     || (i == storeIndex player)
+     || (getTile pos board /= 1)
+     || (getTile opposite board == 0) = board 
+     | otherwise = 
         let amount = 1 + getTile opposite board
             cleared = setTile pos 0
                       (setTile opposite 0 board)
